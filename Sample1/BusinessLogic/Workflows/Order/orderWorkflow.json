@@ -1,0 +1,12 @@
+{
+  "Id": "OrderWorkflow",
+  "Version": 1,
+  "DataType": "Sample1.DataSource, Sample1",
+  "Steps": [
+    {
+      "Id": "CreateNewOrder",
+      "StepType": "Sample1.BusinessLogic.Workflows.Order.Steps.CreateNewOrderStep, Sample1",
+
+    }
+  ]
+}

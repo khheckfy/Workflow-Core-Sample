@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MediatR;
+using WorkflowCore.Interface;
 
 namespace Sample1
 {
@@ -26,6 +27,11 @@ namespace Sample1
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sample1", Version = "v1" });
+            });
+            services.AddWorkflow(x =>
+            {
+                var connectionString = Configuration.GetConnectionString("Default");
+                x.UsePostgreSQL(connectionString, true, true);
             });
         }
 
@@ -49,6 +55,9 @@ namespace Sample1
             {
                 endpoints.MapControllers();
             });
+
+            var host = app.ApplicationServices.GetService<IWorkflowHost>();
+            host.Start();
         }
     }
 }

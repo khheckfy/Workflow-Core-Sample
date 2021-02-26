@@ -5,19 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Workflow\order.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Workflow\order.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="WorkflowCore" Version="3.3.5" />
+    <PackageReference Include="WorkflowCore.Persistence.PostgreSQL" Version="3.3.0" />
   </ItemGroup>
 
 </Project>
