@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using MediatR;
 using WorkflowCore.Interface;
+using WorkflowCore.Services.DefinitionStorage;
 
 namespace Sample1
 {
@@ -21,7 +25,7 @@ namespace Sample1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var assembly = GetType().Assembly;
+            var assembly = Assembly.GetExecutingAssembly();
             services.AddMediatR(assembly);
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -33,6 +37,7 @@ namespace Sample1
                 var connectionString = Configuration.GetConnectionString("Default");
                 x.UsePostgreSQL(connectionString, true, true);
             });
+            services.AddWorkflowDSL();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,8 +61,31 @@ namespace Sample1
                 endpoints.MapControllers();
             });
 
-            var host = app.ApplicationServices.GetService<IWorkflowHost>();
-            host.Start();
+            LoadWorkflow(app);
+        }
+
+        private void LoadWorkflow(IApplicationBuilder app)
+        {
+            const string workFlowFileName = "Sample1.BusinessLogic.Workflows.Order.orderWorkflow.json";
+            var assembly = Assembly.GetExecutingAssembly();
+            using var stream = assembly.GetManifestResourceStream(workFlowFileName);
+
+            if (stream == null)
+            {
+                throw new FileNotFoundException("Cannot find workflow file.", workFlowFileName);
+            }
+
+            using var reader = new StreamReader(stream);
+            var workflowJson = reader.ReadToEnd();
+
+            var loader = app.ApplicationServices.GetService<IDefinitionLoader>();
+
+            if (loader is null)
+            {
+                throw new ArgumentNullException(nameof(loader), "IDefinitionLoader is null in application");
+            }
+
+            loader.LoadDefinition(workflowJson, Deserializers.Json);
         }
     }
 }
